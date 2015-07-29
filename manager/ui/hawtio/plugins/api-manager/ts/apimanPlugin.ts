@@ -89,7 +89,7 @@ module Apiman {
         '/errors/500'          : { templateUrl: 'errors/500.html' }
     };
 
-    _module.config(['$locationProvider', '$routeProvider', 'HawtioNavBuilderProvider',
+    _module.config(['$locationProvider', '$routeProvider', 'HawtioNavBuilderProvider', 
         ($locationProvider, $routeProvider: ng.route.IRouteProvider, builder: HawtioMainNav.BuilderFactory) => {
             tab = builder.create()
                 .id(Apiman.pluginName)
@@ -138,23 +138,26 @@ module Apiman {
         }]);
     
     _module.config(['$httpProvider', function($httpProvider) {
-        $httpProvider.interceptors.push('authInterceptor');
+//        $httpProvider.interceptors.push('authInterceptor');
     }]);
 
-    _module.run(['$rootScope', 'SystemSvcs', 'HawtioNav', ($rootScope, SystemSvcs, HawtioNav: HawtioMainNav.Registry) => {
-        SystemSvcs.getStatus(function(response) {
-            if (response && response.up) {
-                HawtioNav.add(tab);
+    _module.run(['$rootScope', '$window', 'SystemSvcs', 'ServiceRegistry', 'HawtioNav', ($rootScope, $window, SystemSvcs, ServiceRegistry, HawtioNav: HawtioMainNav.Registry) => {
+        
+        //Get's called back so we can turn on/off the apiman tab in hawtio
+        $rootScope.$on('kubernetesModelUpdated', function () {
+          if (ServiceRegistry.hasService('apiman')) {
+                 HawtioNav.add(tab);
             } else {
-                log.error('apiman reports that it is not running.');
+                HawtioNav.remove(tab);
+                log.debug('apiman reports that it is not running.');
             }
-        }, function(error) {
-            log.error('Error getting apiman system status: ' + JSON.stringify(error));
         });
+
         $rootScope.pluginName = Apiman.pluginName;
     }]);
 
-    hawtioPluginLoader.registerPreBootstrapTask((next) => {
+    hawtioPluginLoader.registerPreBootstrapTask(
+     (next) => {
         // Load the configuration jsonp script
         $.getScript('apiman/config.js').done((script, textStatus) => {
             log.info("Loaded the config.js config!");

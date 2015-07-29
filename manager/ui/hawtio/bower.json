@@ -23,6 +23,7 @@
     "hawtio-core-navigation": "~2.0.0",
     "hawtio-utilities": "~2.0.0",
     "hawtio-core-dts": "~2.0.0",
+    "hawtio-kubernetes": "~2.1.26",
     "bootstrap": "~3.3.1",
     "bootstrap-select": "~1.5.2",
     "json-editor": "~0.7.17",
@@ -45,5 +46,9 @@
         "dist/swagger-ui.js"
       ]
     }
+  },
+  "resolutions": {
+    "lodash": "~3.2.0",
+    "codemirror": "^5.0"
   }
 }
